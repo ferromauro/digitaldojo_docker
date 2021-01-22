@@ -1,3 +1,4 @@
 /keys/*.pem
 *swp
+*.pem
 
