@@ -1,0 +1,50 @@
+# Creazione di un cluster + 2 nodegroup
+eksctl cluster create -f cluster.yaml
+
+# Creazione del file nginx-deployment
+cat <<EOF > nginx-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+EOF
+
+# Deploy della mia app/servizio nginx
+kubectl apply -f nginx-deployment.yaml
+
+# Creazione del file yaml per il servizio di loadbalancing
+cat <<EOF > loadbalancer.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+EOF
+
+# Creazione del servizio di loadbalancer con esposizione
+kubectl apply -f loadbalancer.yaml
+
